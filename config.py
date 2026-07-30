@@ -1,8 +1,8 @@
 # =============================================================================
-# config.py — DataGuard Agent: Central Configuration
+# config.py — DataGuard Agent: Central Configuration (Groq Only)
 # =============================================================================
 # All environment variables, threshold constants, and database settings.
-# Supports 100% FREE LLM Providers (Groq, OpenRouter, Ollama) as well as OpenAI.
+# Configured exclusively to use Groq API.
 # =============================================================================
 
 import os
@@ -12,21 +12,28 @@ from dotenv import load_dotenv
 # Load .env from the project root
 load_dotenv(Path(__file__).parent / ".env")
 
+# Helper to load secrets from environment variables or Streamlit Cloud Secrets (st.secrets)
+def _get_secret(key: str, default: str = "") -> str:
+    val = os.getenv(key, "")
+    if val:
+        return val
+    try:
+        import streamlit as st
+        if hasattr(st, "secrets") and key in st.secrets:
+            return str(st.secrets[key])
+    except Exception:
+        pass
+    return default
+
 # ---------------------------------------------------------------------------
-# LLM Provider & API Keys
+# LLM Provider & API Keys (Groq Only)
 # ---------------------------------------------------------------------------
-# Options: "Groq (Free)", "OpenRouter (Free)", "Ollama (Free Local)", "OpenAI"
-LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", "Groq (Free)")
+LLM_PROVIDER: str = "Groq"
+GROQ_API_KEY: str = _get_secret("GROQ_API_KEY", "")
 
-GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
-OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY", "")
-OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
-
-OLLAMA_BASE_URL: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
-
-LLM_MODEL: str = os.getenv("LLM_MODEL", "llama-3.3-70b-versatile")
-LLM_TEMPERATURE: float = float(os.getenv("LLM_TEMPERATURE", "0"))
-LLM_MAX_TOKENS: int = int(os.getenv("LLM_MAX_TOKENS", "2048"))
+LLM_MODEL: str = _get_secret("LLM_MODEL", "llama-3.3-70b-versatile")
+LLM_TEMPERATURE: float = float(_get_secret("LLM_TEMPERATURE", "0"))
+LLM_MAX_TOKENS: int = int(_get_secret("LLM_MAX_TOKENS", "2048"))
 
 # ---------------------------------------------------------------------------
 # Database Configuration

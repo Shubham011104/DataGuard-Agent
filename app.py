@@ -224,99 +224,27 @@ with st.sidebar:
     st.markdown("## 🛡️ DataGuard Agent")
     st.markdown("---")
 
-    # --- Provider Selection ---
+    # --- Provider Status ---
     st.markdown("### 🤖 LLM Provider")
-    provider_choice = st.selectbox(
-        "Select Provider",
-        ["Groq (100% FREE Cloud)", "OpenRouter (FREE Models)", "Ollama (100% FREE Local)", "OpenAI (Paid)"],
+    st.info("⚡ **Groq Cloud API** (llama-3.3-70b-versatile)")
+    config.LLM_PROVIDER = "Groq"
+
+    # --- Key Status Check ---
+    if config.GROQ_API_KEY:
+        st.success("🔐 API Key loaded successfully from system secrets.")
+        st.session_state.api_key_ok = True
+    else:
+        st.error("⚠️ GROQ_API_KEY is missing! Please configure it in Streamlit Secrets or your local .env file.")
+        st.session_state.api_key_ok = False
+
+    st.markdown("---")
+    st.markdown("### ⚙️ Settings")
+    config.LLM_MODEL = st.selectbox(
+        "Model",
+        ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768"],
         index=0,
-        help="Groq and OpenRouter provide 100% FREE cloud API keys with zero credit card required!"
     )
-    config.LLM_PROVIDER = provider_choice
 
-    # --- Key & Model configuration based on provider ---
-    if "Groq" in provider_choice:
-        st.markdown("💡 **Get a 100% FREE key:** [console.groq.com/keys](https://console.groq.com/keys)")
-        has_sys_key = bool(config.GROQ_API_KEY)
-        if has_sys_key:
-            st.info("🔒 Key configured via Streamlit Secrets")
-        groq_key_input = st.text_input(
-            "Groq API Key (gsk_...)",
-            type="password",
-            placeholder="[Secrets Key Loaded]" if has_sys_key else "Paste Groq API Key...",
-            key="groq_key_field",
-        )
-        if groq_key_input:
-            config.GROQ_API_KEY = groq_key_input
-            config.OPENAI_API_KEY = groq_key_input
-            st.session_state.api_key_ok = True
-            st.success("✅ Overrode with new key", icon="🔐")
-        elif has_sys_key:
-            st.session_state.api_key_ok = True
-
-        config.LLM_MODEL = st.selectbox(
-            "Model",
-            ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768"],
-            index=0,
-        )
-
-    elif "OpenRouter" in provider_choice:
-        st.markdown("💡 **Get a FREE key:** [openrouter.ai/keys](https://openrouter.ai/keys)")
-        has_sys_key = bool(config.OPENROUTER_API_KEY)
-        if has_sys_key:
-            st.info("🔒 Key configured via Streamlit Secrets")
-        openrouter_key_input = st.text_input(
-            "OpenRouter API Key (sk-or-v1-...)",
-            type="password",
-            placeholder="[Secrets Key Loaded]" if has_sys_key else "Paste OpenRouter API Key...",
-            key="openrouter_key_field",
-        )
-        if openrouter_key_input:
-            config.OPENROUTER_API_KEY = openrouter_key_input
-            config.OPENAI_API_KEY = openrouter_key_input
-            st.session_state.api_key_ok = True
-            st.success("✅ Overrode with new key", icon="🔐")
-        elif has_sys_key:
-            st.session_state.api_key_ok = True
-
-        config.LLM_MODEL = st.selectbox(
-            "Model (Free)",
-            ["meta-llama/llama-3.1-8b-instruct:free", "google/gemini-2.0-flash-lite-preview:free"],
-            index=0,
-        )
-
-    elif "Ollama" in provider_choice:
-        st.info("ℹ️ Requires Ollama installed & running on localhost:11434")
-        st.session_state.api_key_ok = True  # No key needed
-        config.LLM_MODEL = st.selectbox(
-            "Local Model",
-            ["llama3.1", "mistral", "qwen2.5", "llama3"],
-            index=0,
-        )
-
-    else: # OpenAI
-        st.markdown("### 🔑 OpenAI API Key")
-        has_sys_key = bool(config.OPENAI_API_KEY)
-        if has_sys_key:
-            st.info("🔒 Key configured via Streamlit Secrets")
-        api_key_input = st.text_input(
-            "Paste key (sk-…)",
-            type="password",
-            placeholder="[Secrets Key Loaded]" if has_sys_key else "Paste OpenAI Key...",
-            key="api_key_field",
-        )
-        if api_key_input:
-            config.OPENAI_API_KEY = api_key_input
-            st.session_state.api_key_ok = True
-            st.success("✅ Overrode with new key", icon="🔐")
-        elif has_sys_key:
-            st.session_state.api_key_ok = True
-
-        config.LLM_MODEL = st.selectbox(
-            "Model",
-            ["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo"],
-            index=0,
-        )
 
     st.markdown("---")
     st.markdown("### ⚙️ Agent Tuning")
@@ -626,9 +554,8 @@ with tab2:
         st.info("ℹ️ Load a dataset first (panel above).", icon="📂")
         st.stop()
 
-    has_key = st.session_state.api_key_ok or config.OPENAI_API_KEY or config.GROQ_API_KEY or config.OPENROUTER_API_KEY or "Ollama" in config.LLM_PROVIDER
-    if not has_key:
-        st.warning("⚠️ Enter an API key in the sidebar. Select **Groq (100% FREE Cloud)** for a completely free key!", icon="🔑")
+    if not config.GROQ_API_KEY:
+        st.warning("⚠️ GROQ_API_KEY is missing! Please configure it in your Streamlit secrets or local .env file.", icon="🔑")
         st.stop()
 
     st.markdown('<div class="section-header"><b>🤖 Autonomous Agent Audit Mode</b></div>', unsafe_allow_html=True)
@@ -643,14 +570,16 @@ with tab2:
         st.info("Run the **Data Profile** in Tab 1 first so anomalies are available.", icon="📊")
         st.stop()
 
-    anomaly_labels = [
-        f"[{i+1}] {a.severity} | {a.anomaly_type} | {a.column} ({a.affected_rows} rows)"
-        for i, a in enumerate(report.anomalies)
-    ]
-    selected_idx = st.selectbox("Select anomaly to investigate:", range(len(anomaly_labels)), format_func=lambda i: anomaly_labels[i])
-    selected_anomaly = report.anomalies[selected_idx]
-
-    st.markdown(f"**Selected:** {selected_anomaly.description}")
+    if report is not None and report.anomalies:
+        anomaly_labels = [
+            f"[{i+1}] {a.severity} | {a.anomaly_type} | {a.column} ({a.affected_rows} rows)"
+            for i, a in enumerate(report.anomalies)
+        ]
+        selected_idx = st.selectbox("Select anomaly to investigate:", range(len(anomaly_labels)), format_func=lambda i: anomaly_labels[i])
+        selected_anomaly = report.anomalies[selected_idx]
+        st.markdown(f"**Selected:** {selected_anomaly.description}")
+    else:
+        st.stop()
 
     col_inv, col_cust = st.columns([1, 1])
     with col_inv:
@@ -759,9 +688,8 @@ with tab3:
         st.info("ℹ️ Load a dataset first (panel above).", icon="📂")
         st.stop()
 
-    has_key = st.session_state.api_key_ok or config.OPENAI_API_KEY or config.GROQ_API_KEY or config.OPENROUTER_API_KEY or "Ollama" in config.LLM_PROVIDER
-    if not has_key:
-        st.warning("⚠️ Enter an API key in the sidebar. Select **Groq (100% FREE Cloud)** for a completely free key!", icon="🔑")
+    if not config.GROQ_API_KEY:
+        st.warning("⚠️ GROQ_API_KEY is missing! Please configure it in your Streamlit secrets or local .env file.", icon="🔑")
         st.stop()
 
     st.markdown('<div class="section-header"><b>💬 Natural Language → SQL Copilot</b></div>', unsafe_allow_html=True)

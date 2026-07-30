@@ -74,65 +74,23 @@ Rules:
 # ---------------------------------------------------------------------------
 
 def _build_llm():
-    """Construct the ChatOpenAI model supporting Groq, OpenRouter, Ollama, and OpenAI."""
+    """Construct the ChatOpenAI model configured to use Groq."""
     from langchain_openai import ChatOpenAI
 
-    provider = getattr(config, "LLM_PROVIDER", "Groq (Free)").lower()
-
-    if "groq" in provider:
-        api_key = config.GROQ_API_KEY or config.OPENAI_API_KEY
-        if not api_key:
-            raise ValueError(
-                "Groq API Key missing. Get a 100% FREE key instantly at: "
-                "https://console.groq.com/keys"
-            )
-        model_name = config.LLM_MODEL if config.LLM_MODEL and "llama" in config.LLM_MODEL or "mixtral" in config.LLM_MODEL else "llama-3.3-70b-versatile"
-        return ChatOpenAI(
-            model=model_name,
-            temperature=config.LLM_TEMPERATURE,
-            max_tokens=config.LLM_MAX_TOKENS,
-            api_key=api_key,
-            base_url="https://api.groq.com/openai/v1",
+    api_key = config.GROQ_API_KEY
+    if not api_key:
+        raise ValueError(
+            "GROQ_API_KEY missing. Please configure it in your Streamlit secrets or local .env file."
         )
 
-    elif "openrouter" in provider:
-        api_key = config.OPENROUTER_API_KEY or config.OPENAI_API_KEY
-        if not api_key:
-            raise ValueError(
-                "OpenRouter API Key missing. Get a FREE key at: "
-                "https://openrouter.ai/keys"
-            )
-        model_name = config.LLM_MODEL if ":" in config.LLM_MODEL else "meta-llama/llama-3.1-8b-instruct:free"
-        return ChatOpenAI(
-            model=model_name,
-            temperature=config.LLM_TEMPERATURE,
-            max_tokens=config.LLM_MAX_TOKENS,
-            api_key=api_key,
-            base_url="https://openrouter.ai/api/v1",
-        )
-
-    elif "ollama" in provider:
-        return ChatOpenAI(
-            model=config.LLM_MODEL if config.LLM_MODEL and not config.LLM_MODEL.startswith("gpt") else "llama3.1",
-            temperature=config.LLM_TEMPERATURE,
-            max_tokens=config.LLM_MAX_TOKENS,
-            api_key="ollama",
-            base_url=config.OLLAMA_BASE_URL,
-        )
-
-    else:
-        # Default: OpenAI
-        if not config.OPENAI_API_KEY:
-            raise ValueError(
-                "OPENAI_API_KEY is not set. "
-                "Select 'Groq (Free)' in the sidebar for a 100% free API key!"
-            )
-        return ChatOpenAI(
-            model=config.LLM_MODEL if config.LLM_MODEL.startswith("gpt") else "gpt-4o-mini",
-            temperature=config.LLM_TEMPERATURE,
-            max_tokens=config.LLM_MAX_TOKENS,
-            api_key=config.OPENAI_API_KEY,
-        )
+    model_name = config.LLM_MODEL if config.LLM_MODEL and ("llama" in config.LLM_MODEL or "mixtral" in config.LLM_MODEL) else "llama-3.3-70b-versatile"
+    return ChatOpenAI(
+        model=model_name,
+        temperature=config.LLM_TEMPERATURE,
+        max_tokens=config.LLM_MAX_TOKENS,
+        api_key=api_key,
+        base_url="https://api.groq.com/openai/v1",
+    )
 
 
 def _build_agent(system_prompt: str = SYSTEM_PROMPT):
