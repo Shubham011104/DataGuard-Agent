@@ -60,21 +60,11 @@ copy .env.example .env
 
 DataGuard supports **100% FREE** cloud & local AI providers:
 
-* **Option A — Groq Cloud (Recommended, 100% FREE):**
+* **Groq Cloud (Recommended, 100% FREE):**
   Get a free API key at **[console.groq.com/keys](https://console.groq.com/keys)** and set:
   ```env
   GROQ_API_KEY=gsk_your_free_groq_key_here
   ```
-* **Option B — OpenRouter (Free Models):**
-  Get a key at **[openrouter.ai/keys](https://openrouter.ai/keys)** and set:
-  ```env
-  OPENROUTER_API_KEY=sk-or-v1-your_key_here
-  ```
-* **Option C — Ollama (Local & Offline):**
-  Install [Ollama](https://ollama.com) and run `ollama run llama3.1`. No API key needed!
-* **Option D — OpenAI (Paid):**
-  Set `OPENAI_API_KEY=sk-proj-...` in `.env` or enter it directly in the app sidebar.
-
 ---
 
 ## 🚀 Running the Application
@@ -131,6 +121,3 @@ dataguard_agent/
 * Generated SQL repair scripts are presented to the user for human review, not executed automatically.
 
 ---
-
-## 📜 License
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
