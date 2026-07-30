@@ -237,17 +237,22 @@ with st.sidebar:
     # --- Key & Model configuration based on provider ---
     if "Groq" in provider_choice:
         st.markdown("💡 **Get a 100% FREE key:** [console.groq.com/keys](https://console.groq.com/keys)")
+        has_sys_key = bool(config.GROQ_API_KEY)
+        if has_sys_key:
+            st.info("🔒 Key configured via Streamlit Secrets")
         groq_key_input = st.text_input(
             "Groq API Key (gsk_...)",
             type="password",
-            value=config.GROQ_API_KEY or config.OPENAI_API_KEY or "",
+            placeholder="[Secrets Key Loaded]" if has_sys_key else "Paste Groq API Key...",
             key="groq_key_field",
         )
         if groq_key_input:
             config.GROQ_API_KEY = groq_key_input
             config.OPENAI_API_KEY = groq_key_input
             st.session_state.api_key_ok = True
-            st.success("✅ Groq key saved", icon="🔐")
+            st.success("✅ Overrode with new key", icon="🔐")
+        elif has_sys_key:
+            st.session_state.api_key_ok = True
 
         config.LLM_MODEL = st.selectbox(
             "Model",
@@ -257,17 +262,22 @@ with st.sidebar:
 
     elif "OpenRouter" in provider_choice:
         st.markdown("💡 **Get a FREE key:** [openrouter.ai/keys](https://openrouter.ai/keys)")
+        has_sys_key = bool(config.OPENROUTER_API_KEY)
+        if has_sys_key:
+            st.info("🔒 Key configured via Streamlit Secrets")
         openrouter_key_input = st.text_input(
             "OpenRouter API Key (sk-or-v1-...)",
             type="password",
-            value=config.OPENROUTER_API_KEY or config.OPENAI_API_KEY or "",
+            placeholder="[Secrets Key Loaded]" if has_sys_key else "Paste OpenRouter API Key...",
             key="openrouter_key_field",
         )
         if openrouter_key_input:
             config.OPENROUTER_API_KEY = openrouter_key_input
             config.OPENAI_API_KEY = openrouter_key_input
             st.session_state.api_key_ok = True
-            st.success("✅ OpenRouter key saved", icon="🔐")
+            st.success("✅ Overrode with new key", icon="🔐")
+        elif has_sys_key:
+            st.session_state.api_key_ok = True
 
         config.LLM_MODEL = st.selectbox(
             "Model (Free)",
@@ -286,16 +296,21 @@ with st.sidebar:
 
     else: # OpenAI
         st.markdown("### 🔑 OpenAI API Key")
+        has_sys_key = bool(config.OPENAI_API_KEY)
+        if has_sys_key:
+            st.info("🔒 Key configured via Streamlit Secrets")
         api_key_input = st.text_input(
             "Paste key (sk-…)",
             type="password",
-            value=config.OPENAI_API_KEY or "",
+            placeholder="[Secrets Key Loaded]" if has_sys_key else "Paste OpenAI Key...",
             key="api_key_field",
         )
         if api_key_input:
             config.OPENAI_API_KEY = api_key_input
             st.session_state.api_key_ok = True
-            st.success("✅ OpenAI key saved", icon="🔐")
+            st.success("✅ Overrode with new key", icon="🔐")
+        elif has_sys_key:
+            st.session_state.api_key_ok = True
 
         config.LLM_MODEL = st.selectbox(
             "Model",
