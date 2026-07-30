@@ -1,0 +1,81 @@
+# =============================================================================
+# .gitignore — DataGuard Agent
+# Files and directories to ignore when pushing to GitHub
+# =============================================================================
+
+# ── Environment Secrets & Config ──────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ── Project Documents (Excluded from Git as requested) ────────
+BUILD_GUIDE.md
+TECHNICAL_REPORT.md
+walkthrough.md
+*.pdf
+*.docx
+
+# ── Databases & Storage ──────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+dataguard.db
+
+# ── Python Caches & Compiled Files ────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ── Virtual Environments ──────────────────────────────────────
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ── Streamlit ─────────────────────────────────────────────────
+.streamlit/secrets.toml
+
+# ── IDE & Editor Settings ─────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+pyrightconfig.json
+*.code-workspace
+
+# ── Operating System Files ─────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ── Logs & Temporary Files ────────────────────────────────────
+*.log
+*.tmp
+*.temp
+scratch/
